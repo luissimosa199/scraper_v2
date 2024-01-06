@@ -66,9 +66,9 @@ async function scrap(url: string): Promise<Doctor> {
 
 async function main() {
   const sitemapUrls = [
-    "https://www.doctoralia.es/sitemap1.xml",
-    "https://www.doctoralia.es/sitemap2.xml",
-    "https://www.doctoralia.es/sitemap3.xml",
+    "https://www.doctoralia.es/sitemap.doctor.xml",
+    "https://www.doctoralia.es/sitemap.doctor_0.xml",
+    "https://www.doctoralia.es/sitemap.doctor_1.xml",
   ];
 
   let data: Doctor[] = [];
