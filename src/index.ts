@@ -65,31 +65,58 @@ async function scrap(url: string): Promise<Doctor> {
 }
 
 async function main() {
-  const urls = await fetchAndParseXML(
-    "https://www.doctoralia.es/sitemap.doctor.xml"
-  );
+  const sitemapUrls = [
+    "https://www.doctoralia.es/sitemap1.xml",
+    "https://www.doctoralia.es/sitemap2.xml",
+    "https://www.doctoralia.es/sitemap3.xml",
+  ];
 
-  console.log(`${urls.length} URLS PARSED.`);
+  let data: Doctor[] = [];
+  let fileCount = 0;
+  let totalProcessed = 0;
 
-  const data: Doctor[] = [];
+  const writeDataToFile = () => {
+    fs.writeFileSync(
+      `OUTPUT_DOCTORALIA_ES_${fileCount}.json`,
+      JSON.stringify(data, null, 2)
+    );
+    fileCount++;
+    data = []; // Reset the data array for the next chunk
+  };
 
-  for (let index = 0; index < urls.length; index++) {
-    try {
-      console.log(`-> Scraping ${index + 1}/${urls.length}`);
-      const doctor = await scrap(urls[index]);
-      data.push(doctor);
-    } catch (error) {
-      if (axios.isAxiosError(error) && error.response?.status === 404) {
-        console.log("Error 404, page not found");
-      } else if (error instanceof Error) {
-        console.log("An error occurred:", error);
-      } else {
-        console.log("An unknown error occurred:", error);
+  for (const url of sitemapUrls) {
+    console.log(`Processing sitemap: ${url}`);
+
+    const urls = await fetchAndParseXML(url);
+
+    console.log(`${urls.length} URLs parsed from ${url}.`);
+
+    for (let index = 0; index < urls.length; index++) {
+      try {
+        console.log(`-> Scraping ${index + 1}/${urls.length} from ${url}`);
+        const doctor = await scrap(urls[index]);
+        data.push(doctor);
+        totalProcessed++;
+
+        if (totalProcessed % 10000 === 0) {
+          writeDataToFile();
+        }
+      } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.status === 404) {
+          console.log("Error 404, page not found");
+        } else if (error instanceof Error) {
+          console.log("An error occurred:", error);
+        } else {
+          console.log("An unknown error occurred:", error);
+        }
       }
     }
   }
 
-  fs.writeFileSync("OUTPUT_DOCTORALIA_ES.json", JSON.stringify(data, null, 2));
+  // Write remaining data if any
+  if (data.length > 0) {
+    writeDataToFile();
+  }
 }
 
 main();
