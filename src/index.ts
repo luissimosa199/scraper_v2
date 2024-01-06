@@ -43,9 +43,6 @@ async function scrap(url: string): Promise<Doctor> {
   const phones = Array.from(elements || [], (e: Element) =>
     e.textContent?.replace(/\D/g, "")
   );
-
-  console.log({ phones });
-
   const doctor: Doctor = {
     url,
     name,
@@ -72,6 +69,7 @@ async function main() {
   ];
 
   let data: Doctor[] = [];
+  const failedUrls: string[] = [];
   let fileCount = 0;
   let totalProcessed = 0;
 
@@ -84,6 +82,13 @@ async function main() {
     data = []; // Reset the data array for the next chunk
   };
 
+  const writeFailedUrlsToFile = () => {
+    fs.writeFileSync(
+      `FAILED_URLS_DOCTORALIA_ES.json`,
+      JSON.stringify(failedUrls, null, 2)
+    );
+  };
+
   for (const url of sitemapUrls) {
     console.log(`Processing sitemap: ${url}`);
 
@@ -93,7 +98,7 @@ async function main() {
 
     for (let index = 0; index < urls.length; index++) {
       try {
-        console.log(`-> Scraping ${index + 1}/${urls.length} from ${url}`);
+        console.log(`-> Scraping ${index + 1}/${urls.length}`);
         const doctor = await scrap(urls[index]);
         data.push(doctor);
         totalProcessed++;
@@ -102,6 +107,7 @@ async function main() {
           writeDataToFile();
         }
       } catch (error) {
+        failedUrls.push(urls[index]); // Add the failed URL to the failedUrls array
         if (axios.isAxiosError(error) && error.response?.status === 404) {
           console.log("Error 404, page not found");
         } else if (error instanceof Error) {
@@ -117,6 +123,13 @@ async function main() {
   if (data.length > 0) {
     writeDataToFile();
   }
+
+  // Write failed URLs to file
+  if (failedUrls.length > 0) {
+    writeFailedUrlsToFile();
+  }
 }
+
+main();
 
 main();
