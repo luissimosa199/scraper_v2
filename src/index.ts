@@ -130,5 +130,6 @@ async function main() {
   }
 }
 
-main();
-console.log("\n\n\nSCRAPE SCRIPT ENDED SUCCESSFULLY\n\n\n");
+main().then(() => {
+  console.log("\n\n\nSCRAPE SCRIPT ENDED SUCCESSFULLY\n\n\n");
+});
