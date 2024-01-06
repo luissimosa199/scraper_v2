@@ -131,5 +131,4 @@ async function main() {
 }
 
 main();
-
-main();
+console.log("\n\n\nSCRAPE SCRIPT ENDED SUCCESSFULLY\n\n\n");
