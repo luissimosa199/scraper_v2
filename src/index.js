@@ -65,7 +65,6 @@ function scrap(url) {
                         .querySelector('span[itemprop="addressCountry"]')) === null || _h === void 0 ? void 0 : _h.getAttribute("content")) || "";
                     elements = document.querySelectorAll('a[data-patient-app-event-name="dp-call-phone"]');
                     phones = Array.from(elements || [], function (e) { var _a; return (_a = e.textContent) === null || _a === void 0 ? void 0 : _a.replace(/\D/g, ""); });
-                    console.log({ phones: phones });
                     doctor = {
                         url: url,
                         name: name,
@@ -86,29 +85,57 @@ function scrap(url) {
 function main() {
     var _a;
     return __awaiter(this, void 0, void 0, function () {
-        var urls, data, index, doctor, error_1;
+        var sitemapUrls, data, failedUrls, fileCount, totalProcessed, writeDataToFile, writeFailedUrlsToFile, _i, sitemapUrls_1, url, urls, index, doctor, error_1;
         return __generator(this, function (_b) {
             switch (_b.label) {
-                case 0: return [4 /*yield*/, (0, fetchAndParseXML_1.fetchAndParseXML)("https://www.doctoralia.es/sitemap.doctor.xml")];
-                case 1:
-                    urls = _b.sent();
-                    console.log("".concat(urls.length, " URLS PARSED."));
+                case 0:
+                    sitemapUrls = [
+                        "https://www.doctoralia.es/sitemap.doctor.xml",
+                        "https://www.doctoralia.es/sitemap.doctor_0.xml",
+                        "https://www.doctoralia.es/sitemap.doctor_1.xml",
+                    ];
                     data = [];
-                    index = 0;
-                    _b.label = 2;
+                    failedUrls = [];
+                    fileCount = 0;
+                    totalProcessed = 0;
+                    writeDataToFile = function () {
+                        fs.writeFileSync("OUTPUT_DOCTORALIA_ES_".concat(fileCount, ".json"), JSON.stringify(data, null, 2));
+                        fileCount++;
+                        data = []; // Reset the data array for the next chunk
+                    };
+                    writeFailedUrlsToFile = function () {
+                        fs.writeFileSync("FAILED_URLS_DOCTORALIA_ES.json", JSON.stringify(failedUrls, null, 2));
+                    };
+                    _i = 0, sitemapUrls_1 = sitemapUrls;
+                    _b.label = 1;
+                case 1:
+                    if (!(_i < sitemapUrls_1.length)) return [3 /*break*/, 9];
+                    url = sitemapUrls_1[_i];
+                    console.log("Processing sitemap: ".concat(url));
+                    return [4 /*yield*/, (0, fetchAndParseXML_1.fetchAndParseXML)(url)];
                 case 2:
-                    if (!(index < urls.length)) return [3 /*break*/, 7];
+                    urls = _b.sent();
+                    console.log("".concat(urls.length, " URLs parsed from ").concat(url, "."));
+                    index = 0;
                     _b.label = 3;
                 case 3:
-                    _b.trys.push([3, 5, , 6]);
+                    if (!(index < urls.length)) return [3 /*break*/, 8];
+                    _b.label = 4;
+                case 4:
+                    _b.trys.push([4, 6, , 7]);
                     console.log("-> Scraping ".concat(index + 1, "/").concat(urls.length));
                     return [4 /*yield*/, scrap(urls[index])];
-                case 4:
+                case 5:
                     doctor = _b.sent();
                     data.push(doctor);
-                    return [3 /*break*/, 6];
-                case 5:
+                    totalProcessed++;
+                    if (totalProcessed % 10000 === 0) {
+                        writeDataToFile();
+                    }
+                    return [3 /*break*/, 7];
+                case 6:
                     error_1 = _b.sent();
+                    failedUrls.push(urls[index]); // Add the failed URL to the failedUrls array
                     if (axios_1.default.isAxiosError(error_1) && ((_a = error_1.response) === null || _a === void 0 ? void 0 : _a.status) === 404) {
                         console.log("Error 404, page not found");
                     }
@@ -118,15 +145,27 @@ function main() {
                     else {
                         console.log("An unknown error occurred:", error_1);
                     }
-                    return [3 /*break*/, 6];
-                case 6:
-                    index++;
-                    return [3 /*break*/, 2];
+                    return [3 /*break*/, 7];
                 case 7:
-                    fs.writeFileSync("OUTPUT_DOCTORALIA_ES.json", JSON.stringify(data, null, 2));
+                    index++;
+                    return [3 /*break*/, 3];
+                case 8:
+                    _i++;
+                    return [3 /*break*/, 1];
+                case 9:
+                    // Write remaining data if any
+                    if (data.length > 0) {
+                        writeDataToFile();
+                    }
+                    // Write failed URLs to file
+                    if (failedUrls.length > 0) {
+                        writeFailedUrlsToFile();
+                    }
                     return [2 /*return*/];
             }
         });
     });
 }
-main();
+main().then(function () {
+    console.log("\n\n\nSCRAPE SCRIPT ENDED SUCCESSFULLY\n\n\n");
+});
