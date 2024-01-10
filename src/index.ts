@@ -1,11 +1,11 @@
-import axios from "axios";
+import axios, { CancelToken } from "axios";
 import { JSDOM } from "jsdom";
 import { Doctor } from "./types";
 import { fetchAndParseXML } from "./utils/fetchAndParseXML";
 import * as fs from "fs";
 
-async function scrap(url: string): Promise<Doctor> {
-  const response = await axios(url);
+async function scrap(url: string, cancelToken: CancelToken): Promise<Doctor> {
+  const response = await axios(url, { cancelToken });
 
   const htmlContent = response.data;
 
@@ -43,6 +43,36 @@ async function scrap(url: string): Promise<Doctor> {
   const phones = Array.from(elements || [], (e: Element) =>
     e.textContent?.replace(/\D/g, "")
   );
+
+  const reviewElements = document.querySelectorAll(
+    "div[data-test-id='opinion-block']"
+  );
+  const reviews: Doctor["reviews"] = [];
+
+  reviewElements.forEach((reviewElement) => {
+    const name = reviewElement
+      .querySelector("h4[itemprop='author'] [itemprop='name']")
+      ?.textContent?.trim();
+    const date = reviewElement
+      .querySelector("time[itemprop='datePublished']")
+      ?.getAttribute("datetime");
+    const comment = reviewElement
+      .querySelector("p[itemprop='description']")
+      ?.textContent?.trim();
+
+    const review = {
+      author: name || "",
+      date: date || "",
+      comment: comment || "",
+      rate: null,
+      origin: url,
+      firstScanned: Date.now(),
+      updatedAt: null,
+    };
+
+    reviews.push(review);
+  });
+
   const doctor: Doctor = {
     url,
     name,
@@ -56,6 +86,7 @@ async function scrap(url: string): Promise<Doctor> {
       region,
       country,
     },
+    reviews,
   };
 
   return doctor;
@@ -63,9 +94,9 @@ async function scrap(url: string): Promise<Doctor> {
 
 async function main() {
   const sitemapUrls = [
-    "https://www.doctoralia.es/sitemap.doctor.xml",
-    "https://www.doctoralia.es/sitemap.doctor_0.xml",
     "https://www.doctoralia.es/sitemap.doctor_1.xml",
+    "https://www.doctoralia.es/sitemap.doctor_0.xml",
+    "https://www.doctoralia.es/sitemap.doctor.xml",
   ];
 
   let data: Doctor[] = [];
@@ -97,9 +128,19 @@ async function main() {
     console.log(`${urls.length} URLs parsed from ${url}.`);
 
     for (let index = 0; index < urls.length; index++) {
+      // Create a new Axios CancelToken for each request
+      const CancelToken = axios.CancelToken;
+      const source = CancelToken.source();
+
+      // Set a timeout to cancel the request after 60 seconds
+      setTimeout(() => {
+        source.cancel(`Request cancelled due to timeout: ${urls[index]}`);
+      }, 60000); // 60 seconds timeout
+
       try {
         console.log(`-> Scraping ${index + 1}/${urls.length}`);
-        const doctor = await scrap(urls[index]);
+        const doctor = await scrap(urls[index], source.token);
+        console.log(doctor);
         data.push(doctor);
         totalProcessed++;
 
@@ -107,13 +148,20 @@ async function main() {
           writeDataToFile();
         }
       } catch (error) {
-        failedUrls.push(urls[index]); // Add the failed URL to the failedUrls array
-        if (axios.isAxiosError(error) && error.response?.status === 404) {
+        if (axios.isCancel(error)) {
+          console.log(`Request to ${urls[index]} aborted: ${error.message}`);
+          failedUrls.push(urls[index]);
+        } else if (
+          axios.isAxiosError(error) &&
+          error.response?.status === 404
+        ) {
           console.log("Error 404, page not found");
         } else if (error instanceof Error) {
           console.log("An error occurred:", error);
+          failedUrls.push(urls[index]);
         } else {
           console.log("An unknown error occurred:", error);
+          failedUrls.push(urls[index]);
         }
       }
     }

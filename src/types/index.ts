@@ -1,3 +1,13 @@
+interface Review {
+  author: string;
+  date: string;
+  comment: string;
+  rate: null;
+  origin: string;
+  firstScanned: number;
+  updatedAt: null;
+}
+
 export interface Doctor {
   url: string;
   name: string;
@@ -9,4 +19,5 @@ export interface Doctor {
     region: string;
     country: string;
   };
+  reviews?: Review[];
 }

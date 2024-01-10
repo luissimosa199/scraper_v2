@@ -40,13 +40,13 @@ var axios_1 = require("axios");
 var jsdom_1 = require("jsdom");
 var fetchAndParseXML_1 = require("./utils/fetchAndParseXML");
 var fs = require("fs");
-function scrap(url) {
+function scrap(url, cancelToken) {
     var _a, _b, _c, _d, _e, _f, _g, _h;
     return __awaiter(this, void 0, void 0, function () {
-        var response, htmlContent, dom, document, name, image, street, city, region, country, elements, phones, doctor;
+        var response, htmlContent, dom, document, name, image, street, city, region, country, elements, phones, reviewElements, reviews, doctor;
         return __generator(this, function (_j) {
             switch (_j.label) {
-                case 0: return [4 /*yield*/, (0, axios_1.default)(url)];
+                case 0: return [4 /*yield*/, (0, axios_1.default)(url, { cancelToken: cancelToken })];
                 case 1:
                     response = _j.sent();
                     htmlContent = response.data;
@@ -65,6 +65,27 @@ function scrap(url) {
                         .querySelector('span[itemprop="addressCountry"]')) === null || _h === void 0 ? void 0 : _h.getAttribute("content")) || "";
                     elements = document.querySelectorAll('a[data-patient-app-event-name="dp-call-phone"]');
                     phones = Array.from(elements || [], function (e) { var _a; return (_a = e.textContent) === null || _a === void 0 ? void 0 : _a.replace(/\D/g, ""); });
+                    reviewElements = document.querySelectorAll("div[data-test-id='opinion-block']");
+                    reviews = [];
+                    reviewElements.forEach(function (reviewElement) {
+                        var _a, _b, _c, _d, _e;
+                        var name = (_b = (_a = reviewElement
+                            .querySelector("h4[itemprop='author'] [itemprop='name']")) === null || _a === void 0 ? void 0 : _a.textContent) === null || _b === void 0 ? void 0 : _b.trim();
+                        var date = (_c = reviewElement
+                            .querySelector("time[itemprop='datePublished']")) === null || _c === void 0 ? void 0 : _c.getAttribute("datetime");
+                        var comment = (_e = (_d = reviewElement
+                            .querySelector("p[itemprop='description']")) === null || _d === void 0 ? void 0 : _d.textContent) === null || _e === void 0 ? void 0 : _e.trim();
+                        var review = {
+                            author: name || "",
+                            date: date || "",
+                            comment: comment || "",
+                            rate: null,
+                            origin: url,
+                            firstScanned: Date.now(),
+                            updatedAt: null,
+                        };
+                        reviews.push(review);
+                    });
                     doctor = {
                         url: url,
                         name: name,
@@ -76,6 +97,7 @@ function scrap(url) {
                             region: region,
                             country: country,
                         },
+                        reviews: reviews,
                     };
                     return [2 /*return*/, doctor];
             }
@@ -85,14 +107,14 @@ function scrap(url) {
 function main() {
     var _a;
     return __awaiter(this, void 0, void 0, function () {
-        var sitemapUrls, data, failedUrls, fileCount, totalProcessed, writeDataToFile, writeFailedUrlsToFile, _i, sitemapUrls_1, url, urls, index, doctor, error_1;
+        var sitemapUrls, data, failedUrls, fileCount, totalProcessed, writeDataToFile, writeFailedUrlsToFile, _loop_1, _i, sitemapUrls_1, url;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
                     sitemapUrls = [
-                        "https://www.doctoralia.es/sitemap.doctor.xml",
-                        "https://www.doctoralia.es/sitemap.doctor_0.xml",
                         "https://www.doctoralia.es/sitemap.doctor_1.xml",
+                        "https://www.doctoralia.es/sitemap.doctor_0.xml",
+                        "https://www.doctoralia.es/sitemap.doctor.xml",
                     ];
                     data = [];
                     failedUrls = [];
@@ -106,53 +128,92 @@ function main() {
                     writeFailedUrlsToFile = function () {
                         fs.writeFileSync("FAILED_URLS_DOCTORALIA_ES.json", JSON.stringify(failedUrls, null, 2));
                     };
+                    _loop_1 = function (url) {
+                        var urls, _loop_2, index;
+                        return __generator(this, function (_c) {
+                            switch (_c.label) {
+                                case 0:
+                                    console.log("Processing sitemap: ".concat(url));
+                                    return [4 /*yield*/, (0, fetchAndParseXML_1.fetchAndParseXML)(url)];
+                                case 1:
+                                    urls = _c.sent();
+                                    console.log("".concat(urls.length, " URLs parsed from ").concat(url, "."));
+                                    _loop_2 = function (index) {
+                                        var CancelToken, source, doctor, error_1;
+                                        return __generator(this, function (_d) {
+                                            switch (_d.label) {
+                                                case 0:
+                                                    CancelToken = axios_1.default.CancelToken;
+                                                    source = CancelToken.source();
+                                                    // Set a timeout to cancel the request after 60 seconds
+                                                    setTimeout(function () {
+                                                        source.cancel("Request cancelled due to timeout: ".concat(urls[index]));
+                                                    }, 60000); // 60 seconds timeout
+                                                    _d.label = 1;
+                                                case 1:
+                                                    _d.trys.push([1, 3, , 4]);
+                                                    console.log("-> Scraping ".concat(index + 1, "/").concat(urls.length));
+                                                    return [4 /*yield*/, scrap(urls[index], source.token)];
+                                                case 2:
+                                                    doctor = _d.sent();
+                                                    console.log(doctor);
+                                                    data.push(doctor);
+                                                    totalProcessed++;
+                                                    if (totalProcessed % 10000 === 0) {
+                                                        writeDataToFile();
+                                                    }
+                                                    return [3 /*break*/, 4];
+                                                case 3:
+                                                    error_1 = _d.sent();
+                                                    if (axios_1.default.isCancel(error_1)) {
+                                                        console.log("Request to ".concat(urls[index], " aborted: ").concat(error_1.message));
+                                                        failedUrls.push(urls[index]);
+                                                    }
+                                                    else if (axios_1.default.isAxiosError(error_1) &&
+                                                        ((_a = error_1.response) === null || _a === void 0 ? void 0 : _a.status) === 404) {
+                                                        console.log("Error 404, page not found");
+                                                    }
+                                                    else if (error_1 instanceof Error) {
+                                                        console.log("An error occurred:", error_1);
+                                                        failedUrls.push(urls[index]);
+                                                    }
+                                                    else {
+                                                        console.log("An unknown error occurred:", error_1);
+                                                        failedUrls.push(urls[index]);
+                                                    }
+                                                    return [3 /*break*/, 4];
+                                                case 4: return [2 /*return*/];
+                                            }
+                                        });
+                                    };
+                                    index = 0;
+                                    _c.label = 2;
+                                case 2:
+                                    if (!(index < urls.length)) return [3 /*break*/, 5];
+                                    return [5 /*yield**/, _loop_2(index)];
+                                case 3:
+                                    _c.sent();
+                                    _c.label = 4;
+                                case 4:
+                                    index++;
+                                    return [3 /*break*/, 2];
+                                case 5: return [2 /*return*/];
+                            }
+                        });
+                    };
                     _i = 0, sitemapUrls_1 = sitemapUrls;
                     _b.label = 1;
                 case 1:
-                    if (!(_i < sitemapUrls_1.length)) return [3 /*break*/, 9];
+                    if (!(_i < sitemapUrls_1.length)) return [3 /*break*/, 4];
                     url = sitemapUrls_1[_i];
-                    console.log("Processing sitemap: ".concat(url));
-                    return [4 /*yield*/, (0, fetchAndParseXML_1.fetchAndParseXML)(url)];
+                    return [5 /*yield**/, _loop_1(url)];
                 case 2:
-                    urls = _b.sent();
-                    console.log("".concat(urls.length, " URLs parsed from ").concat(url, "."));
-                    index = 0;
+                    _b.sent();
                     _b.label = 3;
                 case 3:
-                    if (!(index < urls.length)) return [3 /*break*/, 8];
-                    _b.label = 4;
-                case 4:
-                    _b.trys.push([4, 6, , 7]);
-                    console.log("-> Scraping ".concat(index + 1, "/").concat(urls.length));
-                    return [4 /*yield*/, scrap(urls[index])];
-                case 5:
-                    doctor = _b.sent();
-                    data.push(doctor);
-                    totalProcessed++;
-                    if (totalProcessed % 10000 === 0) {
-                        writeDataToFile();
-                    }
-                    return [3 /*break*/, 7];
-                case 6:
-                    error_1 = _b.sent();
-                    failedUrls.push(urls[index]); // Add the failed URL to the failedUrls array
-                    if (axios_1.default.isAxiosError(error_1) && ((_a = error_1.response) === null || _a === void 0 ? void 0 : _a.status) === 404) {
-                        console.log("Error 404, page not found");
-                    }
-                    else if (error_1 instanceof Error) {
-                        console.log("An error occurred:", error_1);
-                    }
-                    else {
-                        console.log("An unknown error occurred:", error_1);
-                    }
-                    return [3 /*break*/, 7];
-                case 7:
-                    index++;
-                    return [3 /*break*/, 3];
-                case 8:
                     _i++;
                     return [3 /*break*/, 1];
-                case 9:
+                case 4:
                     // Write remaining data if any
                     if (data.length > 0) {
                         writeDataToFile();
