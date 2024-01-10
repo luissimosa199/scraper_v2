@@ -11,8 +11,10 @@ interface Review {
 export interface Doctor {
   url: string;
   name: string;
+  about: string;
   image: string;
   phones: string[];
+  diseaseList: string[];
   address: {
     street: string;
     city: string;

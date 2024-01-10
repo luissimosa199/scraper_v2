@@ -44,6 +44,14 @@ async function scrap(url: string, cancelToken: CancelToken): Promise<Doctor> {
     e.textContent?.replace(/\D/g, "")
   );
 
+  const diseaseList = Array.from(
+    document.querySelectorAll('div[id="data-type-disease"] li')
+  ).map((e) => e.textContent?.trim() || "");
+
+  const about =
+    document.querySelector('div[id="data-type-about"] div.modal-body p')
+      ?.textContent || "";
+
   const reviewElements = document.querySelectorAll(
     "div[data-test-id='opinion-block']"
   );
@@ -76,7 +84,9 @@ async function scrap(url: string, cancelToken: CancelToken): Promise<Doctor> {
   const doctor: Doctor = {
     url,
     name,
+    about,
     image,
+    diseaseList,
     phones: phones.filter(
       (phone: string | undefined): phone is string => phone !== undefined
     ),
@@ -94,9 +104,9 @@ async function scrap(url: string, cancelToken: CancelToken): Promise<Doctor> {
 
 async function main() {
   const sitemapUrls = [
-    "https://www.doctoralia.es/sitemap.doctor_1.xml",
-    "https://www.doctoralia.es/sitemap.doctor_0.xml",
-    "https://www.doctoralia.es/sitemap.doctor.xml",
+    "https://www.doctoraliar.com/sitemap.doctor.xml",
+    "https://www.doctoraliar.com/sitemap.doctor_0.xml",
+    "https://www.doctoraliar.com/sitemap.doctor_1.xml",
   ];
 
   let data: Doctor[] = [];
@@ -140,7 +150,9 @@ async function main() {
       try {
         console.log(`-> Scraping ${index + 1}/${urls.length}`);
         const doctor = await scrap(urls[index], source.token);
-        console.log(doctor);
+        //
+        // console.log(doctor);
+        //
         data.push(doctor);
         totalProcessed++;
 

@@ -41,14 +41,14 @@ var jsdom_1 = require("jsdom");
 var fetchAndParseXML_1 = require("./utils/fetchAndParseXML");
 var fs = require("fs");
 function scrap(url, cancelToken) {
-    var _a, _b, _c, _d, _e, _f, _g, _h;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j;
     return __awaiter(this, void 0, void 0, function () {
-        var response, htmlContent, dom, document, name, image, street, city, region, country, elements, phones, reviewElements, reviews, doctor;
-        return __generator(this, function (_j) {
-            switch (_j.label) {
+        var response, htmlContent, dom, document, name, image, street, city, region, country, elements, phones, diseaseList, about, reviewElements, reviews, doctor;
+        return __generator(this, function (_k) {
+            switch (_k.label) {
                 case 0: return [4 /*yield*/, (0, axios_1.default)(url, { cancelToken: cancelToken })];
                 case 1:
-                    response = _j.sent();
+                    response = _k.sent();
                     htmlContent = response.data;
                     dom = new jsdom_1.JSDOM(htmlContent);
                     document = dom.window.document;
@@ -65,6 +65,9 @@ function scrap(url, cancelToken) {
                         .querySelector('span[itemprop="addressCountry"]')) === null || _h === void 0 ? void 0 : _h.getAttribute("content")) || "";
                     elements = document.querySelectorAll('a[data-patient-app-event-name="dp-call-phone"]');
                     phones = Array.from(elements || [], function (e) { var _a; return (_a = e.textContent) === null || _a === void 0 ? void 0 : _a.replace(/\D/g, ""); });
+                    diseaseList = Array.from(document.querySelectorAll('div[id="data-type-disease"] li')).map(function (e) { var _a; return ((_a = e.textContent) === null || _a === void 0 ? void 0 : _a.trim()) || ""; });
+                    about = (_j = document.querySelector('div[id="data-type-about"] div.modal-body p')) === null || _j === void 0 ? void 0 : _j.textContent;
+                    console.log(about);
                     reviewElements = document.querySelectorAll("div[data-test-id='opinion-block']");
                     reviews = [];
                     reviewElements.forEach(function (reviewElement) {
@@ -90,6 +93,7 @@ function scrap(url, cancelToken) {
                         url: url,
                         name: name,
                         image: image,
+                        diseaseList: diseaseList,
                         phones: phones.filter(function (phone) { return phone !== undefined; }),
                         address: {
                             street: street,
@@ -112,9 +116,9 @@ function main() {
             switch (_b.label) {
                 case 0:
                     sitemapUrls = [
-                        "https://www.doctoralia.es/sitemap.doctor_1.xml",
-                        "https://www.doctoralia.es/sitemap.doctor_0.xml",
-                        "https://www.doctoralia.es/sitemap.doctor.xml",
+                        "https://www.doctoraliar.com/sitemap.doctor.xml",
+                        "https://www.doctoraliar.com/sitemap.doctor_0.xml",
+                        "https://www.doctoraliar.com/sitemap.doctor_1.xml",
                     ];
                     data = [];
                     failedUrls = [];
@@ -156,7 +160,9 @@ function main() {
                                                     return [4 /*yield*/, scrap(urls[index], source.token)];
                                                 case 2:
                                                     doctor = _d.sent();
-                                                    console.log(doctor);
+                                                    //
+                                                    // console.log(doctor);
+                                                    //
                                                     data.push(doctor);
                                                     totalProcessed++;
                                                     if (totalProcessed % 10000 === 0) {
