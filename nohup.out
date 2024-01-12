@@ -1,2 +1,43 @@
 sh: line 1: 2919670 Hangup                  node src/index.js > output.log 2>&1
 sh: line 1: 3018605 Killed                  node src/index.js > output.log 2>&1
+error TS2468: Cannot find global value 'Promise'.
+src/index.ts(1,36): error TS2307: Cannot find module 'axios' or its corresponding type declarations.
+src/index.ts(2,23): error TS2307: Cannot find module 'jsdom' or its corresponding type declarations.
+src/index.ts(5,21): error TS2307: Cannot find module 'fs' or its corresponding type declarations.
+src/index.ts(7,62): error TS2705: An async function or method in ES5/ES3 requires the 'Promise' constructor.  Make sure you have a declaration for the 'Promise' constructor or include 'ES2015' in your '--lib' option.
+src/index.ts(43,24): error TS2550: Property 'from' does not exist on type 'ArrayConstructor'. Do you need to change your target library? Try changing the 'lib' compiler option to 'es2015' or later.
+src/index.ts(47,29): error TS2550: Property 'from' does not exist on type 'ArrayConstructor'. Do you need to change your target library? Try changing the 'lib' compiler option to 'es2015' or later.
+src/index.ts(105,16): error TS2705: An async function or method in ES5/ES3 requires the 'Promise' constructor.  Make sure you have a declaration for the 'Promise' constructor or include 'ES2015' in your '--lib' option.
+src/utils/fetchAndParseXML.ts(1,19): error TS2307: Cannot find module 'axios' or its corresponding type declarations.
+src/utils/fetchAndParseXML.ts(2,25): error TS2307: Cannot find module 'xml2js' or its corresponding type declarations.
+error TS2468: Cannot find global value 'Promise'.
+src/index.ts(1,36): error TS2307: Cannot find module 'axios' or its corresponding type declarations.
+src/index.ts(2,23): error TS2307: Cannot find module 'jsdom' or its corresponding type declarations.
+src/index.ts(5,21): error TS2307: Cannot find module 'fs' or its corresponding type declarations.
+src/index.ts(7,62): error TS2705: An async function or method in ES5/ES3 requires the 'Promise' constructor.  Make sure you have a declaration for the 'Promise' constructor or include 'ES2015' in your '--lib' option.
+src/index.ts(43,24): error TS2550: Property 'from' does not exist on type 'ArrayConstructor'. Do you need to change your target library? Try changing the 'lib' compiler option to 'es2015' or later.
+src/index.ts(47,29): error TS2550: Property 'from' does not exist on type 'ArrayConstructor'. Do you need to change your target library? Try changing the 'lib' compiler option to 'es2015' or later.
+src/index.ts(105,16): error TS2705: An async function or method in ES5/ES3 requires the 'Promise' constructor.  Make sure you have a declaration for the 'Promise' constructor or include 'ES2015' in your '--lib' option.
+src/utils/fetchAndParseXML.ts(1,19): error TS2307: Cannot find module 'axios' or its corresponding type declarations.
+src/utils/fetchAndParseXML.ts(2,25): error TS2307: Cannot find module 'xml2js' or its corresponding type declarations.
+error TS2468: Cannot find global value 'Promise'.
+src/index.ts(1,36): error TS2307: Cannot find module 'axios' or its corresponding type declarations.
+src/index.ts(2,23): error TS2307: Cannot find module 'jsdom' or its corresponding type declarations.
+src/index.ts(5,21): error TS2307: Cannot find module 'fs' or its corresponding type declarations.
+src/index.ts(7,62): error TS2705: An async function or method in ES5/ES3 requires the 'Promise' constructor.  Make sure you have a declaration for the 'Promise' constructor or include 'ES2015' in your '--lib' option.
+src/index.ts(43,24): error TS2550: Property 'from' does not exist on type 'ArrayConstructor'. Do you need to change your target library? Try changing the 'lib' compiler option to 'es2015' or later.
+src/index.ts(47,29): error TS2550: Property 'from' does not exist on type 'ArrayConstructor'. Do you need to change your target library? Try changing the 'lib' compiler option to 'es2015' or later.
+src/index.ts(105,16): error TS2705: An async function or method in ES5/ES3 requires the 'Promise' constructor.  Make sure you have a declaration for the 'Promise' constructor or include 'ES2015' in your '--lib' option.
+src/utils/fetchAndParseXML.ts(1,19): error TS2307: Cannot find module 'axios' or its corresponding type declarations.
+src/utils/fetchAndParseXML.ts(2,25): error TS2307: Cannot find module 'xml2js' or its corresponding type declarations.
+error TS2468: Cannot find global value 'Promise'.
+src/index.ts(1,36): error TS2307: Cannot find module 'axios' or its corresponding type declarations.
+src/index.ts(2,23): error TS2307: Cannot find module 'jsdom' or its corresponding type declarations.
+src/index.ts(5,21): error TS2307: Cannot find module 'fs' or its corresponding type declarations.
+src/index.ts(7,62): error TS2705: An async function or method in ES5/ES3 requires the 'Promise' constructor.  Make sure you have a declaration for the 'Promise' constructor or include 'ES2015' in your '--lib' option.
+src/index.ts(43,24): error TS2550: Property 'from' does not exist on type 'ArrayConstructor'. Do you need to change your target library? Try changing the 'lib' compiler option to 'es2015' or later.
+src/index.ts(47,29): error TS2550: Property 'from' does not exist on type 'ArrayConstructor'. Do you need to change your target library? Try changing the 'lib' compiler option to 'es2015' or later.
+src/index.ts(105,16): error TS2705: An async function or method in ES5/ES3 requires the 'Promise' constructor.  Make sure you have a declaration for the 'Promise' constructor or include 'ES2015' in your '--lib' option.
+src/utils/fetchAndParseXML.ts(1,19): error TS2307: Cannot find module 'axios' or its corresponding type declarations.
+src/utils/fetchAndParseXML.ts(2,25): error TS2307: Cannot find module 'xml2js' or its corresponding type declarations.
+sh: line 1: 3254472 Killed                  node src/index.js > output.log 2>&1

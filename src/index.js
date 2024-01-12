@@ -66,8 +66,7 @@ function scrap(url, cancelToken) {
                     elements = document.querySelectorAll('a[data-patient-app-event-name="dp-call-phone"]');
                     phones = Array.from(elements || [], function (e) { var _a; return (_a = e.textContent) === null || _a === void 0 ? void 0 : _a.replace(/\D/g, ""); });
                     diseaseList = Array.from(document.querySelectorAll('div[id="data-type-disease"] li')).map(function (e) { var _a; return ((_a = e.textContent) === null || _a === void 0 ? void 0 : _a.trim()) || ""; });
-                    about = (_j = document.querySelector('div[id="data-type-about"] div.modal-body p')) === null || _j === void 0 ? void 0 : _j.textContent;
-                    console.log(about);
+                    about = ((_j = document.querySelector('div[id="data-type-about"] div.modal-body p')) === null || _j === void 0 ? void 0 : _j.textContent) || "";
                     reviewElements = document.querySelectorAll("div[data-test-id='opinion-block']");
                     reviews = [];
                     reviewElements.forEach(function (reviewElement) {
@@ -92,6 +91,7 @@ function scrap(url, cancelToken) {
                     doctor = {
                         url: url,
                         name: name,
+                        about: about,
                         image: image,
                         diseaseList: diseaseList,
                         phones: phones.filter(function (phone) { return phone !== undefined; }),
