@@ -104,7 +104,6 @@ async function scrap(url: string, cancelToken: CancelToken): Promise<Doctor> {
 
 async function main() {
   const sitemapUrls = [
-    "https://www.doctoraliar.com/sitemap.doctor.xml",
     "https://www.doctoraliar.com/sitemap.doctor_0.xml",
     "https://www.doctoraliar.com/sitemap.doctor_1.xml",
   ];
