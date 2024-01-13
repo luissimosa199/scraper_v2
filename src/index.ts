@@ -94,9 +94,7 @@ async function scrap(url: string, cancelToken: CancelToken): Promise<Doctor> {
 
 async function main() {
   const sitemapUrls = [
-    "https://www.doctoralia.es/sitemap.doctor_1.xml",
     "https://www.doctoralia.es/sitemap.doctor_0.xml",
-    "https://www.doctoralia.es/sitemap.doctor.xml",
   ];
 
   let data: Doctor[] = [];
