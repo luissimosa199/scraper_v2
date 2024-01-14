@@ -41,3 +41,4 @@ src/index.ts(105,16): error TS2705: An async function or method in ES5/ES3 requi
 src/utils/fetchAndParseXML.ts(1,19): error TS2307: Cannot find module 'axios' or its corresponding type declarations.
 src/utils/fetchAndParseXML.ts(2,25): error TS2307: Cannot find module 'xml2js' or its corresponding type declarations.
 sh: line 1: 3254472 Killed                  node src/index.js > output.log 2>&1
+sh: line 1: 3428728 Killed                  node src/index.js > output.log 2>&1
