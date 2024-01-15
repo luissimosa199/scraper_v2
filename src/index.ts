@@ -93,9 +93,7 @@ async function scrap(url: string, cancelToken: CancelToken): Promise<Doctor> {
 }
 
 async function main() {
-  const sitemapUrls = [
-    "https://www.doctoralia.es/sitemap.doctor_0.xml",
-  ];
+  const sitemapUrls = ["https://www.doctoralia.es/sitemap.doctor_0.xml"];
 
   let data: Doctor[] = [];
   const failedUrls: string[] = [];
@@ -126,6 +124,7 @@ async function main() {
     console.log(`${urls.length} URLs parsed from ${url}.`);
 
     for (let index = 0; index < urls.length; index++) {
+      if (index < 39999) continue;
       // Create a new Axios CancelToken for each request
       const CancelToken = axios.CancelToken;
       const source = CancelToken.source();
@@ -138,7 +137,6 @@ async function main() {
       try {
         console.log(`-> Scraping ${index + 1}/${urls.length}`);
         const doctor = await scrap(urls[index], source.token);
-        console.log(doctor);
         data.push(doctor);
         totalProcessed++;
 
