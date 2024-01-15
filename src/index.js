@@ -116,7 +116,6 @@ function main() {
             switch (_b.label) {
                 case 0:
                     sitemapUrls = [
-                        "https://www.doctoraliar.com/sitemap.doctor_0.xml",
                         "https://www.doctoraliar.com/sitemap.doctor_1.xml",
                     ];
                     data = [];
