@@ -112,9 +112,7 @@ function main() {
             switch (_b.label) {
                 case 0:
                     sitemapUrls = [
-                        "https://www.doctoralia.es/sitemap.doctor_1.xml",
                         "https://www.doctoralia.es/sitemap.doctor_0.xml",
-                        "https://www.doctoralia.es/sitemap.doctor.xml",
                     ];
                     data = [];
                     failedUrls = [];
