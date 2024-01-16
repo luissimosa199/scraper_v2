@@ -111,9 +111,7 @@ function main() {
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
-                    sitemapUrls = [
-                        "https://www.doctoralia.es/sitemap.doctor_0.xml",
-                    ];
+                    sitemapUrls = ["https://www.doctoralia.es/sitemap.doctor_0.xml"];
                     data = [];
                     failedUrls = [];
                     fileCount = 0;
@@ -141,6 +139,8 @@ function main() {
                                         return __generator(this, function (_d) {
                                             switch (_d.label) {
                                                 case 0:
+                                                    if (index < 39999)
+                                                        return [2 /*return*/, "continue"];
                                                     CancelToken = axios_1.default.CancelToken;
                                                     source = CancelToken.source();
                                                     // Set a timeout to cancel the request after 60 seconds
@@ -154,7 +154,6 @@ function main() {
                                                     return [4 /*yield*/, scrap(urls[index], source.token)];
                                                 case 2:
                                                     doctor = _d.sent();
-                                                    console.log(doctor);
                                                     data.push(doctor);
                                                     totalProcessed++;
                                                     if (totalProcessed % 10000 === 0) {
